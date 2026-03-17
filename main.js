@@ -1,29 +1,60 @@
 const { app, BrowserWindow, ipcMain, dialog, shell, powerSaveBlocker } = require('electron');
 const path = require('path');
+const fs = require('fs');
 const { exec } = require('child_process');
+const db = require('./database');
 
 let mainWindow;
+let awakeId = null;
 let sleepBlockerId = null;
 
 function createWindow() {
     mainWindow = new BrowserWindow({
-        width: 900,
-        height: 700,
-        backgroundColor: '#0f0f0f', // Matches your luxury dark theme
-        titleBarStyle: 'hiddenInset', // Makes it look like a premium Mac/Win app
+        width: 1000,
+        height: 750,
+        backgroundColor: '#0f0f0f',
+        frame: false,
+        titleBarStyle: 'hidden',
         webPreferences: {
             nodeIntegration: true,
-            contextIsolation: false, // Allows renderer.js to use 'require' for Python
+            contextIsolation: false,
         },
     });
 
     mainWindow.loadFile('index.html');
-
-    // Optional: Open DevTools while you are building
-    // mainWindow.webContents.openDevTools();
 }
 
-app.whenReady().then(() => {
+async function migrateData() {
+    console.log("Checking for legacy data migration...");
+    const tasksPath = path.join(__dirname, 'tasks.json');
+    const settingsPath = path.join(__dirname, 'settings.json');
+
+    if (fs.existsSync(settingsPath)) {
+        try {
+            console.log("Migrating settings...");
+            const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+            for (const [k, v] of Object.entries(settings)) {
+                await db.saveSetting(k, v);
+            }
+            fs.renameSync(settingsPath, settingsPath + '.bak');
+        } catch (e) { console.error("Settings migration error", e); }
+    }
+
+    if (fs.existsSync(tasksPath)) {
+        try {
+            console.log("Migrating tasks...");
+            const tasks = JSON.parse(fs.readFileSync(tasksPath, 'utf8'));
+            for (const task of tasks) {
+                await db.upsertTask(task);
+            }
+            fs.renameSync(tasksPath, tasksPath + '.bak');
+        } catch (e) { console.error("Tasks migration error", e); }
+    }
+}
+
+app.whenReady().then(async () => {
+    await db.initDb();
+    await migrateData();
     createWindow();
 
     app.on('activate', () => {
@@ -31,33 +62,48 @@ app.whenReady().then(() => {
     });
 });
 
-// --- IPC HANDLERS ---
+// --- DATABASE IPC HANDLERS ---
+ipcMain.on('db-load-all', async (event) => {
+    const tasks = await db.getAllTasks();
+    const settings = await db.getSettings();
+    event.reply('db-loaded-all', { tasks, settings });
+});
 
-// Select Folder
+ipcMain.on('db-save-task', async (event, task) => {
+    await db.upsertTask(task);
+});
+
+ipcMain.on('db-delete-task', async (event, id) => {
+    await db.deleteTask(id);
+});
+
+ipcMain.on('db-clear-tasks', async () => {
+    await db.clearAllTasks();
+});
+
+ipcMain.on('db-save-settings', async (event, settings) => {
+    for (const [k, v] of Object.entries(settings)) {
+        await db.saveSetting(k, v);
+    }
+});
+
+// --- NATIVE IPC HANDLERS ---
 ipcMain.on('select-folder', async (event) => {
-    const result = await dialog.showOpenDialog(mainWindow, {
-        properties: ['openDirectory']
-    });
+    const result = await dialog.showOpenDialog(mainWindow, { properties: ['openDirectory'] });
     if (!result.canceled && result.filePaths.length > 0) {
         event.reply('selected-folder', result.filePaths[0]);
     }
 });
 
-// Sleep Prevention
 ipcMain.on('prevent-sleep', (event, shouldPrevent) => {
-    if (shouldPrevent) {
-        if (sleepBlockerId === null) {
-            sleepBlockerId = powerSaveBlocker.start('prevent-app-suspension');
-        }
-    } else {
-        if (sleepBlockerId !== null) {
-            powerSaveBlocker.stop(sleepBlockerId);
-            sleepBlockerId = null;
-        }
+    if (shouldPrevent && !sleepBlockerId) {
+        sleepBlockerId = powerSaveBlocker.start('prevent-app-suspension');
+    } else if (!shouldPrevent && sleepBlockerId) {
+        powerSaveBlocker.stop(sleepBlockerId);
+        sleepBlockerId = null;
     }
 });
 
-// Power Actions
 ipcMain.on('power-action', (event, action) => {
     switch (action) {
         case 'shutdown': exec('shutdown /s /t 60'); break;
@@ -69,37 +115,64 @@ ipcMain.on('power-action', (event, action) => {
     }
 });
 
-// Engine Update
-ipcMain.on('update-engine', (event) => {
-    const localExe = path.join(__dirname, 'resources', 'bin', 'yt-dlp.exe');
-    
-    // Try updating the local binary first as it's what the app uses
-    let updateCmd = 'python -m pip install -U yt-dlp';
-    if (require('fs').existsSync(localExe)) {
-        updateCmd = `"${localExe}" -U`;
-    }
+ipcMain.on('window-minimize', () => mainWindow?.minimize());
+ipcMain.on('window-maximize', () => {
+    if (mainWindow?.isMaximized()) mainWindow.unmaximize();
+    else mainWindow?.maximize();
+});
+ipcMain.on('window-close', () => mainWindow?.close());
 
-    exec(updateCmd, (error, stdout, stderr) => {
-        if (error) {
-            let userFriendlyMsg = error.message;
-            if (error.message.includes('WinError 32')) {
-                userFriendlyMsg = "Security Alert: The engine core is currently locked. Please ensure all active processes are stopped and try the upgrade again.";
-            }
-            event.reply('engine-update-result', { success: false, message: userFriendlyMsg });
-            return;
-        }
-        event.reply('engine-update-result', { success: true, message: "Success: Your media extraction engine has been upgraded to the latest professional version!" });
+ipcMain.on('set-autolaunch', (event, enable) => {
+    app.setLoginItemSettings({ openAtLogin: enable, path: app.getPath('exe') });
+});
+
+ipcMain.on('set-keep-awake', (event, enable) => {
+    if (enable && !awakeId) awakeId = powerSaveBlocker.start('prevent-app-suspension');
+    else if (!enable && awakeId) {
+        powerSaveBlocker.stop(awakeId);
+        awakeId = null;
+    }
+});
+
+ipcMain.on('select-sound-file', async (event, type) => {
+    const result = await dialog.showOpenDialog(mainWindow, {
+        properties: ['openFile'],
+        filters: [{ name: 'Audio Files', extensions: ['wav', 'mp3', 'ogg'] }]
+    });
+    if (!result.canceled && result.filePaths.length > 0) {
+        event.reply('selected-sound-file', { type, path: result.filePaths[0] });
+    }
+});
+
+ipcMain.on('update-engine', (event) => {
+    exec('pip install -U yt-dlp', (error) => {
+        event.reply('engine-update-result', { 
+            success: !error, 
+            message: error ? `Error: ${error.message}` : "Success: Core engine upgraded." 
+        });
     });
 });
 
-// Focus Window
-ipcMain.on('focus-window', () => {
-    if (mainWindow) {
-        if (mainWindow.isMinimized()) mainWindow.restore();
-        mainWindow.focus();
+ipcMain.on('fetch-thumbnail', async (event, url) => {
+    const https = require('https');
+    https.get(url, { headers: { 'User-Agent': 'Mozilla/5.0' }}, (res) => {
+        const data = [];
+        res.on('data', chunk => data.push(chunk));
+        res.on('end', () => {
+            const buffer = Buffer.concat(data);
+            event.reply('thumbnail-fetched', { success: true, base64: `data:${res.headers['content-type']};base64,${buffer.toString('base64')}` });
+        });
+    }).on('error', err => event.reply('thumbnail-fetched', { success: false, error: err.message }));
+});
+
+ipcMain.on('select-av-file', async (event) => {
+    const result = await dialog.showOpenDialog(mainWindow, {
+        properties: ['openFile'],
+        filters: [{ name: 'Executables', extensions: ['exe', 'com', 'bat', 'cmd'] }]
+    });
+    if (!result.canceled && result.filePaths.length > 0) {
+        event.reply('selected-av-file', result.filePaths[0]);
     }
 });
 
-app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') app.quit();
-});
+app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });

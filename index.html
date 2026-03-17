@@ -33,6 +33,90 @@
             overflow: hidden;
         }
 
+        /* CUSTOM TITLE BAR */
+        .custom-title-bar {
+            height: 38px;
+            background: #141414;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            border-bottom: 1px solid #222;
+            -webkit-app-region: none !important; /* Disable on container to be safe */
+            flex-shrink: 0;
+            position: relative;
+            z-index: 10000;
+        }
+
+        .title-drag-region {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 150px; /* Ensure it stops before the buttons */
+            -webkit-app-region: drag;
+            z-index: 1;
+        }
+
+        .title-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            -webkit-app-region: no-drag !important;
+            z-index: 10001; /* Higher than drag region */
+            padding-left: 10px;
+            height: 100%;
+            margin-left: auto;
+        }
+
+        .title-bar-center {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 13px;
+            color: #666;
+            letter-spacing: 0.5px;
+            pointer-events: none;
+            font-weight: 500;
+            white-space: nowrap;
+            z-index: 2;
+        }
+
+        /* Traffic light buttons */
+        .win-btn {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            -webkit-app-region: no-drag !important;
+            pointer-events: auto !important;
+            padding: 0;
+            outline: none;
+            z-index: 10002;
+        }
+        .win-btn:hover { filter: brightness(1.3); transform: scale(1.12); }
+        .win-btn:active { transform: scale(0.92); }
+
+        .btn-minimize  { background: #ffbd2e; box-shadow: 0 0 0 0.5px rgba(200,140,0,0.6); }
+        .btn-maximize  { background: #28c840; box-shadow: 0 0 0 0.5px rgba(0,160,30,0.6); }
+        .btn-close-win { background: #ff5f57; box-shadow: 0 0 0 0.5px rgba(200,30,20,0.6); }
+
+        .win-btn .btn-icon {
+            position: absolute;
+            font-size: 8px;
+            font-weight: 900;
+            color: rgba(0,0,0,0.6);
+            display: none;
+            line-height: 1;
+            pointer-events: none;
+        }
+        .title-bar-right:hover .win-btn .btn-icon { display: flex; }
+
         /* TOOLBAR */
         .toolbar {
             background: var(--bg-toolbar);
@@ -166,13 +250,19 @@
 
         .table-header {
             display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 1.5fr;
+            grid-template-columns: 40px 2fr 1fr 1fr 1fr 1fr 1fr 1.5fr;
             background: var(--bg-toolbar);
             border-bottom: 1px solid var(--border);
             padding: 8px 15px;
             font-size: 12px;
             font-weight: 600;
             color: var(--text-dim);
+        }
+
+        .col-check {
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .table-content {
@@ -182,7 +272,7 @@
 
         .table-row {
             display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 1.5fr;
+            grid-template-columns: 40px 2fr 1fr 1fr 1fr 1fr 1fr 1.5fr;
             padding: 10px 15px;
             border-bottom: 1px solid #1a1a1a;
             font-size: 13px;
@@ -207,7 +297,38 @@
 
         .status-downloading { color: var(--accent); background: var(--accent-soft); }
         .status-finished { color: #28a745; background: rgba(40, 167, 69, 0.1); }
+
+        /* SETTINGS TABS */
+        .settings-tabs {
+            display: flex;
+            gap: 10px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+        .settings-tab {
+            padding: 12px 15px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-dim);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        .settings-tab:hover { color: var(--text-main); }
+        .settings-tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+        .tab-pane {
+            animation: fadeIn 0.2s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .status-error { color: #ff4d4d; background: rgba(255, 77, 77, 0.1); }
+        .status-paused { color: #ff9500; background: rgba(255, 149, 0, 0.1); }
 
         /* EMPTY STATE */
         .empty-state {
@@ -278,6 +399,43 @@
         }
         .form-group input:focus { border-color: var(--accent); }
 
+        .playlist-container {
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid rgba(255,255,255,0.05);
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            display: none;
+        }
+        .playlist-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            gap: 10px;
+            font-size: 13px;
+        }
+        .playlist-item:last-child { border-bottom: none; }
+        .playlist-item input[type="checkbox"] { accent-color: var(--accent); cursor: pointer; }
+        .playlist-item .item-title { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .playlist-item .item-duration { color: var(--text-dim); font-size: 11px; }
+
+        .audio-only-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+            padding: 10px 15px;
+            background: rgba(0,122,255,0.05);
+            border: 1px solid rgba(0,122,255,0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .audio-only-toggle:hover { background: rgba(0,122,255,0.08); }
+        .audio-only-toggle i { color: var(--accent); }
+
         .modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
         .btn {
             padding: 8px 20px;
@@ -335,11 +493,242 @@
             background: #333;
             margin: 5px 0;
         }
+        /* NOTIFICATION POPUP */
+        .notification-container {
+            position: fixed;
+            bottom: 40px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .custom-notification {
+            background: #1a1a1a;
+            border-left: 4px solid var(--accent);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 4px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            min-width: 300px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transform: translateX(120%);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid #333;
+        }
+
+        .custom-notification.show { transform: translateX(0); }
+        .custom-notification.success { border-left-color: #28a745; }
+        .custom-notification.error { border-left-color: #ff4d4d; }
+        .custom-notification.info { border-left-color: var(--accent); }
+
+        /* ALERT MODAL (Replacement for alert()) */
+        #custom-alert-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            backdrop-filter: blur(5px);
+        }
+
+        .alert-modal {
+            background: #1a1a1a;
+            width: 400px;
+            border-radius: 12px;
+            border: 1px solid #333;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.9);
+            animation: modalPop 0.3s ease-out;
+        }
+
+        @keyframes modalPop {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .alert-icon {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: var(--accent-soft);
+        }
+
+        .alert-title { font-size: 18px; font-weight: 600; margin-bottom: 10px; }
+        .alert-message { font-size: 14px; color: var(--text-dim); margin-bottom: 25px; line-height: 1.5; }
+
+        /* ADVANCED SETTINGS STYLES */
+        .settings-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding: 10px 20px 10px 10px;
+            scroll-behavior: smooth;
+        }
+
+        .settings-container::-webkit-scrollbar { width: 6px; }
+        .settings-container::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+        .settings-container::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; transition: 0.3s; }
+        .settings-container::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+        .settings-section {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .settings-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .settings-icon {
+            width: 32px;
+            height: 32px;
+            background: rgba(0,122,255,0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+        }
+
+        .settings-title { font-size: 16px; font-weight: 600; }
+        .settings-subtitle { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+
+        .setting-row:last-child { border-bottom: none; }
+
+        .setting-info { flex: 1; }
+        .setting-label { font-size: 14px; font-weight: 500; }
+        .setting-desc { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
+
+        /* Custom Switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .switch input { opacity: 0; width: 0; height: 0; }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #333;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px; width: 18px;
+            left: 3px; bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider { background-color: var(--accent); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        .setting-input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .btn-group {
+            display: flex;
+            background: #111;
+            padding: 4px;
+            border-radius: 8px;
+            gap: 4px;
+        }
+
+        .btn-toggle {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: var(--text-dim);
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-toggle.active {
+            background: rgba(0,122,255,0.1);
+            color: var(--accent);
+            box-shadow: 0 0 0 1px rgba(0,122,255,0.2);
+        }
+
+        .setting-select {
+            background: #111;
+            border: 1px solid #333;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            width: 100%;
+            outline: none;
+        }
     </style>
 </head>
 <body>
 
+    <!-- CUSTOM TITLE BAR -->
+    <div class="custom-title-bar">
+        <div class="title-drag-region"></div>
+        <span class="title-bar-center">Universal Download Manager</span>
+        <div class="title-bar-right">
+            <!-- Mac colors on the right: Yellow(Min), Green(Max), Red(Close) -->
+            <button class="win-btn btn-minimize" id="btn-win-minimize" title="Minimize">
+                <span class="btn-icon">−</span>
+            </button>
+            <button class="win-btn btn-maximize" id="btn-win-maximize" title="Maximize">
+                <span class="btn-icon">＋</span>
+            </button>
+            <button class="win-btn btn-close-win" id="btn-win-close" title="Close">
+                <span class="btn-icon">×</span>
+            </button>
+        </div>
+    </div>
+
     <!-- TOOLBAR -->
+
     <div class="toolbar">
         <div class="tool-btn" id="add-url-btn">
             <svg viewBox="0 0 24 24" fill="none" stroke="#007aff" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
@@ -353,8 +742,12 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="#28a745" stroke-width="2"><path d="M5 3l14 9-14 9V3z"/></svg>
             <span>Resume</span>
         </div>
+        <div class="tool-btn" id="pause-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#ff9500" stroke-width="2"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+            <span>Pause</span>
+        </div>
         <div class="tool-btn" id="stop-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#ffc107" stroke-width="2"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="#ffc107" stroke-width="2"><rect x="9" y="9" width="6" height="6" stroke-width="4"/></svg>
             <span>Stop</span>
         </div>
         <div class="tool-btn" id="stop-all-btn">
@@ -435,13 +828,14 @@
         <!-- MAIN VIEW -->
         <div class="main-view">
             <div class="table-header">
-                <div class="sortable" data-sort="title">File Name</div>
-                <div class="sortable" data-sort="size">Size</div>
-                <div class="sortable" data-sort="status">Status</div>
-                <div class="sortable" data-sort="eta">Time Left</div>
-                <div class="sortable" data-sort="rate">Rate</div>
-                <div class="sortable" data-sort="res">Resolution</div>
-                <div class="sortable" data-sort="progress">Progress</div>
+                <div class="col-check"><input type="checkbox" id="select-all-checkbox"></div>
+                <div class="col-name sortable" data-sort="title">File Name <i class="fas fa-sort"></i></div>
+                <div class="sortable" data-sort="size">Size <i class="fas fa-sort"></i></div>
+                <div class="sortable" data-sort="status">Status <i class="fas fa-sort"></i></div>
+                <div class="sortable" data-sort="eta">Time Left <i class="fas fa-sort"></i></div>
+                <div class="sortable" data-sort="rate">Rate <i class="fas fa-sort"></i></div>
+                <div class="sortable" data-sort="res">Resolution <i class="fas fa-sort"></i></div>
+                <div class="sortable" data-sort="progress">Progress <i class="fas fa-sort"></i></div>
             </div>
             
             <div class="table-content" id="download-list">
@@ -462,92 +856,430 @@
     <!-- ADD URL MODAL -->
     <div class="modal-overlay" id="modal-overlay">
         <div class="modal">
-            <h3>New Extraction Task</h3>
+            <h3 id="modal-title-text">New Extraction Task</h3>
             <div class="form-group">
                 <label>URL</label>
-                <input type="text" id="modal-url" placeholder="Paste media link here...">
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" id="modal-url" placeholder="Paste media link here..." style="flex: 1;">
+                    <button class="btn btn-secondary" id="modal-analyze-btn" style="white-space: nowrap; padding: 0 15px;">Fetch Info</button>
+                </div>
             </div>
+
+            <!-- Analysis Status -->
+            <div id="modal-analysis-status" style="display: none; margin-bottom: 20px; text-align: center;">
+                <div class="status-badge status-downloading" style="padding: 10px; width: 100%; display: block;">
+                    Analyzing Media Stream... Please wait.
+                </div>
+            </div>
+
+            <!-- Video Info (Hidden by default) -->
+            <div id="modal-info-section" style="display: none; margin-bottom: 20px; background: #1a1a1a; padding: 15px; border-radius: 8px; border: 1px solid var(--border);">
+                <div style="display: flex; gap: 15px; align-items: start;">
+                    <div id="modal-thumbnail" style="width: 120px; height: 68px; background: #333; border-radius: 4px; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative;">
+                        <!-- Thumbnail or Placeholder -->
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1" style="width: 40px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                    </div>
+                    <div style="flex: 1; min-width: 0;">
+                        <div id="modal-video-title" style="font-weight: 600; font-size: 13px; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--accent);">Fetching...</div>
+                        <div id="modal-video-author" style="font-size: 11px; color: var(--text-dim); margin-bottom: 8px;">---</div>
+                        <div id="modal-video-duration" style="font-size: 11px; color: var(--text-dim);">Duration: ---</div>
+                    </div>
+                </div>
+            </div>
+
             <div class="form-group">
-                <label>Quality</label>
-                <select id="modal-res">
-                    <option value="2160">4K (2160p)</option>
-                    <option value="1080" selected>1080p</option>
-                    <option value="720">720p</option>
-                    <option value="480">480p</option>
-                </select>
+                <div id="modal-quality-group" style="display: none;">
+                    <label class="modal-label">Performance Profile</label>
+                    <select id="modal-res" class="modal-select">
+                        <option value="2160">Ultra HD (4K)</option>
+                        <option value="1440">Quad HD (2K)</option>
+                        <option value="1080" selected>Full HD (1080p)</option>
+                        <option value="720">HD (720p)</option>
+                        <option value="480">SD (480p)</option>
+                    </select>
+
+                    <div class="audio-only-toggle" id="audio-only-toggle">
+                        <input type="checkbox" id="modal-audio-only" style="width: auto; margin:0;">
+                        <span>Extract High-Quality Audio Only (MP3)</span>
+                    </div>
+
+                    <div id="playlist-group" style="display: none; margin-top: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <label class="modal-label" style="margin: 0;">Playlist Items</label>
+                            <div style="font-size: 11px; color: var(--accent); cursor: pointer;" id="playlist-select-all">Select All</div>
+                        </div>
+                        <div class="playlist-container" id="playlist-items">
+                            <!-- Items will be injected here -->
+                        </div>
+                    </div>
+
+                    <!-- Queue Selection -->
+                    <div style="margin-top: 20px; display: flex; align-items: center; gap: 12px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.05);">
+                        <span style="font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;">Save to Category</span>
+                        <select id="modal-queue-select" class="modal-select" style="margin: 0; flex: 1;">
+                            <option value="main">Main Download Queue</option>
+                            <option value="music">Music / Podcasts</option>
+                            <option value="movies">Movies / Videos</option>
+                            <option value="sync">Synchronization Queue</option>
+                        </select>
+                    </div>
+                </div>
             </div>
-            <div class="modal-actions">
+
+            <div class="modal-actions" style="display: flex; gap: 10px;">
                 <button class="btn btn-secondary" id="modal-cancel">Cancel</button>
-                <button class="btn btn-primary" id="modal-download">Initiate Extraction</button>
+                <button class="btn btn-primary" id="modal-download-later" style="background: #5856d6;" disabled>Download Later</button>
+                <button class="btn btn-primary" id="modal-download" disabled>Download Now</button>
             </div>
         </div>
     </div>
 
     <!-- OPTIONS MODAL -->
     <div class="modal-overlay" id="options-overlay">
-        <div class="modal" style="max-width: 450px;">
-            <h3>System Configuration</h3>
-            <div class="form-group">
-                <label>Default Save Path</label>
-                <div style="display: flex; gap: 8px;">
-                    <input type="text" id="settings-path" readonly style="flex: 1;">
-                    <button class="btn btn-secondary" id="settings-browse" style="white-space: nowrap;">Browse</button>
+        <div class="modal" style="width: 650px; padding: 0; background: #0a0a0a; border: 1px solid rgba(255,255,255,0.08);">
+            <div class="modal-header" style="padding: 25px 30px; border-bottom: 1px solid rgba(255,255,255,0.05); position: sticky; top: 0; background: #0a0a0a; z-index: 10; display: flex; justify-content: space-between; align-items: start;">
+                <div>
+                    <h2 style="font-size: 24px; font-weight: 700; background: linear-gradient(135deg, #fff 0%, #aaa 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">Advanced Settings</h2>
+                    <p style="font-size: 13px; color: var(--text-dim); margin-top: 5px;">Configure Engine & System Preferences</p>
+                </div>
+                <button class="modal-close" id="options-close" style="background: rgba(255,255,255,0.05); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px;">&times;</button>
+            </div>
+            
+            <div class="settings-tabs" style="display: flex; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.08); padding: 0 30px;">
+                <div class="settings-tab active" data-tab="tab-general">General</div>
+                <div class="settings-tab" data-tab="tab-save-to">Save to</div>
+                <div class="settings-tab" data-tab="tab-downloads">Downloads</div>
+                <div class="settings-tab" data-tab="tab-misc">Misc</div>
+            </div>
+            
+            <div class="settings-container" id="settings-panes" style="height: 400px; overflow-y: auto; padding: 25px 30px;">
+                <!-- GENERAL TAB -->
+                <div class="tab-pane active" id="tab-general">
+                    <div class="settings-section">
+                        <div class="settings-header">
+                            <div>
+                                <div class="settings-title">Download Dialogs</div>
+                                <div class="settings-subtitle">Default download behavior</div>
+                            </div>
+                        </div>
+                        <div class="setting-row">
+                            <div class="setting-info">
+                                <div class="setting-label">Show Start Download Dialog</div>
+                                <div class="setting-desc">Choose filename and folder for each new link</div>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="setting-show-start-dialog">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-row">
+                            <div class="setting-info">
+                                <div class="setting-label">Show Download Complete Dialog</div>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="setting-show-complete-dialog">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <div class="settings-header">
+                            <div>
+                                <div class="settings-title">Startup & System</div>
+                            </div>
+                        </div>
+                        <div class="setting-row">
+                            <div class="setting-info">
+                                <div class="setting-label">Launch on Startup</div>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="setting-start-login">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-row">
+                            <div class="setting-info">
+                                <div class="setting-label">Keep PC Awake</div>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="setting-keep-awake">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <div class="settings-header">
+                            <div style="flex: 1;">
+                                <div class="settings-title">Audio Notifications</div>
+                                <div class="settings-subtitle">Configure sounds for events</div>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="setting-enable-sounds">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-row">
+                            <div class="setting-info"><div class="setting-label">COMPLETE</div></div>
+                            <div class="setting-input-group">
+                                <input type="text" class="setting-select" style="width: 200px;" id="sound-complete" readonly>
+                                <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 11px;" id="browse-sound-complete">Browse</button>
+                            </div>
+                        </div>
+                        <div class="setting-row" style="margin-top: 10px;">
+                            <div class="setting-info"><div class="setting-label">FAILED</div></div>
+                            <div class="setting-input-group">
+                                <input type="text" class="setting-select" style="width: 200px;" id="sound-failed" readonly>
+                                <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 11px;" id="browse-sound-failed">Browse</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SAVE TO TAB -->
+                <div class="tab-pane" id="tab-save-to" style="display: none;">
+                    <div class="settings-section">
+                        <div class="settings-header">
+                            <div>
+                                <div class="settings-title">Storage Path</div>
+                                <div class="settings-subtitle">Default folder for downloads</div>
+                            </div>
+                        </div>
+                        <div class="setting-input-group" style="margin-top: 10px;">
+                            <input type="text" class="setting-select" style="flex: 1;" id="settings-path" readonly>
+                            <button class="btn btn-secondary" style="padding: 6px 12px;" id="settings-browse">Browse</button>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <div class="settings-header">
+                            <div>
+                                <div class="settings-title">File Name Conflict</div>
+                                <div class="settings-subtitle">When a file with same name exists</div>
+                            </div>
+                        </div>
+                        <div class="btn-group" style="margin-top: 10px;">
+                            <button class="btn-toggle active" id="btn-rename">Auto Rename</button>
+                            <button class="btn-toggle" id="btn-overwrite">Overwrite</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DOWNLOADS TAB -->
+                <div class="tab-pane" id="tab-downloads" style="display: none;">
+                    <div class="settings-section">
+                        <div class="settings-header">
+                            <div>
+                                <div class="settings-title">Concurrency</div>
+                                <div class="settings-subtitle">Network & queue limits</div>
+                            </div>
+                        </div>
+                        <div class="setting-row">
+                            <div class="setting-info">
+                                <div class="setting-label">Max Downloads</div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="range" id="setting-max-concurrent" min="1" max="10" value="3" style="width: 100px;">
+                                <span id="max-concurrent-val" style="color: var(--accent); font-weight: 600;">3</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <div class="settings-header">
+                            <div>
+                                <div class="settings-title">Duplicate Links</div>
+                            </div>
+                        </div>
+                        <select class="setting-select" id="setting-duplicate-action" style="margin-top: 10px; width: 100%;">
+                            <option value="ask">Show a dialog and ask</option>
+                            <option value="skip">Skip download</option>
+                            <option value="overwrite">Overwrite existing task</option>
+                        </select>
+                    </div>
+                </div>
+
+
+                <!-- MISC TAB -->
+                <div class="tab-pane" id="tab-misc" style="display: none;">
+                    <div class="settings-section">
+                        <div class="settings-header">
+                            <div>
+                                <div class="settings-title">Other Preferences</div>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-row">
+                            <div class="setting-info">
+                                <div class="setting-label">Run Custom Command</div>
+                                <div class="setting-desc">Execute after each download</div>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="setting-run-command">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div id="command-input-group" style="display: none; margin-top: 10px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                            <input type="text" id="setting-command-str" class="setting-select" style="width: 100%;" placeholder="e.g. explorer.exe /select,&quot;{file}&quot;">
+                        </div>
+
+                        <div class="setting-row" style="margin-top: 15px;">
+                            <div class="setting-info">
+                                <div class="setting-label">Antivirus Scan</div>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="setting-antivirus-scan">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div id="antivirus-input-group" style="display: none; margin-top: 10px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                            <div class="setting-input-group">
+                                <input type="text" id="setting-av-path" class="setting-select" style="flex: 1;" placeholder="Antivirus CLI Path">
+                                <button class="btn btn-secondary" style="padding: 6px 12px;" id="browse-av">Browse</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-section" style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px;">
+                        <div class="setting-row">
+                            <div class="setting-info">
+                                <div class="setting-label">Speed Limit (KB/s)</div>
+                            </div>
+                            <input type="number" class="setting-select" style="width: 100px;" id="settings-speed-limit" placeholder="0">
+                        </div>
+                        <div class="setting-row" style="margin-top: 15px;">
+                            <button class="btn btn-secondary" id="engine-update-btn" style="width: 100%;">Update yt-dlp Engine</button>
+                        </div>
+                        <div class="setting-row">
+                            <button class="btn" id="settings-clear" style="width: 100%; color: #ff4d4d; border-color: #ff4d4d22; background: #ff4d4d11;">Clear History Permanently</button>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="form-group">
-                <label>Download Speed Limit (e.g. 500K, 2M, 0 for unlimited)</label>
-                <input type="text" id="settings-speed-limit" placeholder="Unlimited">
-            </div>
-            <div class="form-group">
-                <label>System & Engine</label>
-                <div style="display: flex; gap: 8px;">
-                    <button class="btn btn-secondary" id="engine-update-btn" style="flex: 1;">Update yt-dlp Engine</button>
-                    <button class="btn btn-secondary" id="settings-clear" style="flex: 1; border-color: rgba(255, 77, 77, 0.4); color: #ff4d4d;">Clear History</button>
-                </div>
-            </div>
-            <div class="modal-actions">
-                <button class="btn btn-secondary" id="options-close">Close</button>
-                <button class="btn btn-primary" id="options-save">Apply Configuration</button>
+
+            <div class="modal-actions" style="padding: 20px 30px; border-top: 1px solid rgba(255,255,255,0.05); position: sticky; bottom: 0; background: #0a0a0a; z-index: 10; border-radius: 0 0 12px 12px;">
+                <button class="btn btn-secondary" id="options-cancel">Cancel</button>
+                <button class="btn btn-primary" id="options-save" style="background: var(--accent); border: none; box-shadow: 0 4px 15px rgba(0,122,255,0.3);">Apply Configuration</button>
             </div>
         </div>
     </div>
 
-    <!-- SCHEDULER MODAL -->
+    <!-- SCHEDULER MODAL (IDM STYLE) -->
+    <style>
+        .sched-q-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 2px;
+        }
+        .sched-q-item:hover { background: rgba(255,255,255,0.05); color: var(--text-main); }
+        .sched-q-item.active { background: var(--accent-soft); color: var(--accent); font-weight: 500; }
+        .sched-pane { animation: fadeIn 0.2s ease-out; }
+        .radio-label { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #eee; cursor: pointer; }
+        .sched-group { background: rgba(255,255,255,0.02); padding: 15px; border-radius: 8px; }
+    </style>
+
     <div class="modal-overlay" id="scheduler-overlay">
-        <div class="modal" style="max-width: 480px;">
-            <h3>Extraction Scheduler & Power</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
-                <div class="form-group">
-                    <label>Start Downloads At</label>
-                    <input type="time" id="sched-start-time">
-                </div>
-                <div class="form-group">
-                    <label>Stop Downloads At</label>
-                    <input type="time" id="sched-stop-time">
-                </div>
+        <div class="modal" style="width: 800px; height: 500px; padding: 0; background: #0a0a0a; border: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column;">
+            <div class="modal-header" style="padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="font-size: 16px; font-weight: 600; color: var(--text-main);">Scheduler</h3>
+                <button class="modal-close" id="scheduler-close" style="background: none; border: none; font-size: 20px; color: #555; cursor: pointer;">&times;</button>
             </div>
             
-            <div class="form-group">
-                <label>When All Downloads Done</label>
-                <select id="sched-power-action">
-                    <option value="none">Take No Action</option>
-                    <option value="shutdown">Shutdown PC</option>
-                    <option value="restart">Restart PC</option>
-                    <option value="hibernate">Hibernate</option>
-                    <option value="sleep">Sleep / Suspend</option>
-                    <option value="lock">Lock Workstation</option>
-                    <option value="exit">Exit Application</option>
-                </select>
-            </div>
+            <div style="display: flex; flex: 1; overflow: hidden;">
+                <!-- Sidebar: Queues -->
+                <div style="width: 220px; background: rgba(255,255,255,0.02); border-right: 1px solid rgba(255,255,255,0.05); padding: 15px; display: flex; flex-direction: column;">
+                    <div style="font-size: 11px; color: #555; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px;">Queues</div>
+                    <div class="sched-q-item active" data-q="main">
+                        <svg viewBox="0 0 24 24" style="width: 14px; height: 14px; fill: #ffd700;"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+                        Main Download Queue
+                    </div>
+                    <div class="sched-q-item" data-q="sync">
+                        <svg viewBox="0 0 24 24" style="width: 14px; height: 14px; fill: #28a745;"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+                        Synchronization Queue
+                    </div>
+                    
+                    <div style="margin-top: auto;">
+                        <button class="btn btn-secondary" style="width: 100%; font-size: 11px; padding: 6px;" id="scheduler-new-queue">New Queue</button>
+                    </div>
+                </div>
 
-            <div class="form-group" style="display: flex; align-items: center; gap: 10px; background: #151515; padding: 10px; border-radius: 6px;">
-                <input type="checkbox" id="sched-prevent-sleep" checked style="width: auto;">
-                <label style="margin: 0; color: #eee; font-size: 13px;">Prevent System Suspension during active extraction</label>
-            </div>
+                <!-- Content Area -->
+                <div style="flex: 1; display: flex; flex-direction: column;">
+                    <div class="settings-tabs" style="padding: 0 20px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <div class="settings-tab active" data-sched-tab="tab-sched-timer">Schedule</div>
+                        <div class="settings-tab" data-sched-tab="tab-sched-files">Files in queue</div>
+                    </div>
 
-            <div class="modal-actions">
-                <button class="btn btn-secondary" id="scheduler-close">Cancel</button>
-                <button class="btn btn-primary" id="scheduler-save">Save Scheduler Profile</button>
+                    <div style="flex: 1; padding: 20px; overflow-y: auto;">
+                        <!-- TAB: Schedule -->
+                        <div class="sched-pane" id="tab-sched-timer">
+                            <div class="sched-group">
+                                <label class="radio-label">
+                                    <input type="radio" name="sched-type" checked> One-time downloading
+                                </label>
+                                <label class="radio-label" style="margin-top: 10px;">
+                                    <input type="radio" name="sched-type"> Periodic synchronization
+                                </label>
+                            </div>
+
+                            <div style="margin-top: 20px;">
+                                <div class="setting-row">
+                                    <div class="setting-info" style="display: flex; align-items: center; gap: 10px;">
+                                        <input type="checkbox" id="sched-start-active">
+                                        <div class="setting-label">Start download at</div>
+                                    </div>
+                                    <input type="time" id="sched-start-time" class="setting-select" style="width: 120px;">
+                                </div>
+                                <div class="setting-row" style="margin-top: 15px;">
+                                    <div class="setting-info" style="display: flex; align-items: center; gap: 10px;">
+                                        <input type="checkbox" id="sched-stop-active">
+                                        <div class="setting-label">Stop download at</div>
+                                    </div>
+                                    <input type="time" id="sched-stop-time" class="setting-select" style="width: 120px;">
+                                </div>
+                            </div>
+
+                            <div style="margin-top: 15px; background: rgba(255,255,255,0.02); padding: 12px; border-radius: 6px;">
+                                <div class="setting-row">
+                                    <div class="setting-info" style="display: flex; align-items: center; gap: 10px;">
+                                        <input type="checkbox" id="sched-power-action-active">
+                                        <div class="setting-label">Hang up / Shutdown when done</div>
+                                    </div>
+                                    <select id="sched-power-action" class="setting-select" style="width: 120px;">
+                                        <option value="shutdown">Shut down</option>
+                                        <option value="sleep">Sleep</option>
+                                        <option value="quit">Exit App</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TAB: Files in Queue -->
+                        <div class="sched-pane" id="tab-sched-files" style="display: none;">
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                                <span style="font-size: 13px;">Download</span>
+                                <input type="number" id="sched-q-limit" class="setting-select" style="width: 60px; padding: 4px;" value="1">
+                                <span style="font-size: 13px;">files at the same time</span>
+                            </div>
+                            <div id="sched-q-list" style="border: 1px solid rgba(255,255,255,0.05); border-radius: 4px; height: 180px; overflow-y: auto; background: rgba(0,0,0,0.2);">
+                                <!-- Queue files will appear here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-actions" style="padding: 15px 20px; border-top: 1px solid rgba(255,255,255,0.05); background: #0a0a0a;">
+                        <button class="btn btn-secondary" id="scheduler-close-btn">Close</button>
+                        <button class="btn btn-primary" id="scheduler-save" style="background: var(--accent); border: none;">Apply</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -582,6 +1314,37 @@
             Delete
         </div>
     </div>
+
+    <!-- CUSTOM ALERT OVERLAY -->
+    <div id="custom-alert-overlay">
+        <div class="alert-modal">
+            <div class="alert-icon" id="alert-icon-box">
+                <svg id="alert-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 30px; height: 30px;"></svg>
+            </div>
+            <div class="alert-title" id="alert-title">System Alert</div>
+            <div class="alert-message" id="alert-message">This is a system notification message.</div>
+            <!-- Queue Selection -->
+            <div style="margin-top: 15px; display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.5px;">Save to Category</span>
+                <select id="alert-queue-select" class="setting-select" style="flex: 1; padding: 4px 8px; font-size: 13px;">
+                    <option value="main">Main Download Queue</option>
+                    <option value="music">Music / Podcasts</option>
+                    <option value="movies">Movies / Videos</option>
+                    <option value="sync">Synchronization Queue</option>
+                </select>
+            </div>
+            <div id="alert-actions" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="btn btn-secondary" id="alert-cancel-btn" style="flex: 1; display: none;">Cancel</button>
+                <button class="btn btn-primary" id="alert-open-file-btn" style="flex: 1; display: none; background: #28a745;">Open File</button>
+                <button class="btn btn-primary" id="alert-open-folder-btn" style="flex: 1; display: none; background: #ff9500;">Open Folder</button>
+                <button class="btn btn-primary" id="alert-delete-disk-btn" style="flex: 1; display: none; background: #ff4d4d;">Delete from Disk</button>
+                <button class="btn btn-primary" id="alert-ok-btn" style="flex: 1;">Acknowledge</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOTIFICATION CONTAINER -->
+    <div class="notification-container" id="notification-area"></div>
 
     <script src="renderer.js"></script>
 </body>

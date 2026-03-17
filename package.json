@@ -1,5 +1,5 @@
 {
-  "name": "Universal-Media-Extractor",
+  "name": "universal-media-extractor",
   "version": "1.0.0",
   "description": "",
   "main": "main.js",
@@ -14,5 +14,9 @@
   "devDependencies": {
     "electron": "^41.0.2",
     "sqlite3": "^6.0.1"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.8.0",
+    "nedb-promises": "^6.2.3"
   }
 }

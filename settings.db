@@ -1,0 +1,32 @@
+{"key":"downloadPath","value":"E:\\My Project\\ProjectYT-DLP","_id":"AbW6BP51fdgcn6pd"}
+{"key":"speedLimit","value":"0","_id":"3nhAVhhpOCmU2XWU"}
+{"key":"maxConcurrent","value":5,"_id":"7e1tsOdbXbrNUb9m"}
+{"key":"scheduler","value":{"active":false,"startActive":false,"startTime":"02:00","stopActive":false,"stopTime":"07:30","powerActive":false,"powerAction":"shutdown","qLimit":1},"_id":"hTa1XY9n9HpSW38w"}
+{"key":"showStartDialog","value":true,"_id":"HEVyIp53Tk7aO9Gu"}
+{"key":"showCompleteDialog","value":true,"_id":"vlqgVY6kVUa7MOZV"}
+{"key":"duplicateAction","value":"ask","_id":"goPAlcUvXCkyDQVd"}
+{"key":"conflictAction","value":"rename","_id":"Ls6I77rhiMGVceKG"}
+{"key":"enableSounds","value":false,"_id":"qyS3U8FFaT5pHNtQ"}
+{"key":"soundFiles","value":{"complete":"","failed":""},"_id":"cStPHbZFnICFSt77"}
+{"key":"startOnLogin","value":false,"_id":"lVqNOOS4FpBJfjFH"}
+{"key":"keepAwake","value":true,"_id":"Z7VJxUhsgs6tvG0F"}
+{"key":"runCommand","value":false,"_id":"oevcxNcdr6oPRMtJ"}
+{"key":"commandStr","value":"explorer.exe /select,\"{file}\"","_id":"oBoSOmPqsSCPfqJa"}
+{"key":"antivirusScan","value":false,"_id":"Nv2fdGNU07nm4Fbr"}
+{"key":"avPath","value":"","_id":"49JS8SVjAZ3Sdk3E"}
+{"key":"downloadPath","value":"E:\\My Project\\ProjectYT-DLP","_id":"AbW6BP51fdgcn6pd"}
+{"key":"speedLimit","value":"0","_id":"3nhAVhhpOCmU2XWU"}
+{"key":"maxConcurrent","value":1,"_id":"7e1tsOdbXbrNUb9m"}
+{"key":"scheduler","value":{"active":false,"startActive":false,"startTime":"02:00","stopActive":false,"stopTime":"07:30","powerActive":false,"powerAction":"shutdown","qLimit":1},"_id":"hTa1XY9n9HpSW38w"}
+{"key":"showStartDialog","value":true,"_id":"HEVyIp53Tk7aO9Gu"}
+{"key":"showCompleteDialog","value":true,"_id":"vlqgVY6kVUa7MOZV"}
+{"key":"duplicateAction","value":"ask","_id":"goPAlcUvXCkyDQVd"}
+{"key":"conflictAction","value":"rename","_id":"Ls6I77rhiMGVceKG"}
+{"key":"enableSounds","value":false,"_id":"qyS3U8FFaT5pHNtQ"}
+{"key":"soundFiles","value":{"complete":"","failed":""},"_id":"cStPHbZFnICFSt77"}
+{"key":"startOnLogin","value":false,"_id":"lVqNOOS4FpBJfjFH"}
+{"key":"keepAwake","value":true,"_id":"Z7VJxUhsgs6tvG0F"}
+{"key":"runCommand","value":false,"_id":"oevcxNcdr6oPRMtJ"}
+{"key":"commandStr","value":"explorer.exe /select,\"{file}\"","_id":"oBoSOmPqsSCPfqJa"}
+{"key":"antivirusScan","value":false,"_id":"Nv2fdGNU07nm4Fbr"}
+{"key":"avPath","value":"","_id":"49JS8SVjAZ3Sdk3E"}
