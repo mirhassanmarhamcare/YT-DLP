@@ -6,3 +6,7 @@ resources/bin/
 dist/
 build/
 .DS_Store
+tasks.json
+settings.json
+data.db
+*.json.bak

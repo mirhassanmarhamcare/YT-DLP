@@ -1,115 +1,588 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <title>Universal Media Extractor</title>
+    <title>Universal Media Extractor - Professional</title>
     <style>
         :root {
+            --bg-main: #0f0f0f;
+            --bg-sidebar: #121212;
+            --bg-toolbar: #1a1a1a;
+            --border: #2a2a2a;
             --accent: #007aff;
-            --bg: #0f0f0f;
-            --card: #1a1a1a;
+            --accent-soft: rgba(0, 122, 255, 0.1);
+            --text-main: #e0e0e0;
+            --text-dim: #888;
+            --hover: #252525;
+            --sidebar-active: #1d2533;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
         }
 
         body {
-            background: var(--bg);
-            color: white;
-            font-family: 'Segoe UI', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            background: var(--bg-main);
+            color: var(--text-main);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-        }
-
-        .glass-card {
-            background: var(--card);
-            padding: 2rem;
-            border-radius: 20px;
-            border: 1px solid #333;
-            width: 400px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-        }
-
-        h2 {
-            font-weight: 300;
-            margin-bottom: 1.5rem;
-            letter-spacing: 1px;
-        }
-
-        input,
-        select,
-        button {
-            width: 100%;
-            padding: 12px;
-            margin: 8px 0;
-            border-radius: 8px;
-            border: 1px solid #333;
-            background: #252525;
-            color: white;
-            outline: none;
-            box-sizing: border-box;
-        }
-
-        button {
-            background: var(--accent);
-            border: none;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-            margin-top: 1rem;
-        }
-
-        button:hover {
-            opacity: 0.8;
-            transform: translateY(-1px);
-        }
-
-        .progress-container {
-            width: 100%;
-            background: #333;
-            height: 6px;
-            border-radius: 10px;
-            margin-top: 20px;
-            display: none;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
             overflow: hidden;
         }
 
-        #progress-bar {
-            width: 0%;
-            height: 100%;
-            background: var(--accent);
-            transition: width 0.3s;
+        /* TOOLBAR */
+        .toolbar {
+            background: var(--bg-toolbar);
+            height: 60px;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            border-bottom: 1px solid var(--border);
+            -webkit-app-region: drag;
         }
 
-        #status {
+        .tool-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 5px 12px;
+            cursor: pointer;
+            transition: 0.2s;
+            border-radius: 4px;
+            -webkit-app-region: no-drag;
+            min-width: 60px;
+        }
+
+        .tool-btn:hover {
+            background: var(--hover);
+        }
+
+        .tool-btn svg {
+            width: 22px;
+            height: 22px;
+            margin-bottom: 4px;
+        }
+
+        .tool-btn span {
+            font-size: 10px;
+            color: var(--text-dim);
+        }
+
+        .divider {
+            width: 1px;
+            height: 30px;
+            background: var(--border);
+            margin: 0 10px;
+        }
+
+        /* MAIN CONTENT AREA */
+        .content-area {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 200px;
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border);
+            padding: 15px 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-section {
+            margin-bottom: 20px;
+        }
+
+        .sidebar-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-dim);
+            padding: 0 15px 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 15px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: 0.2s;
+            color: var(--text-main);
+        }
+
+        .nav-item:hover {
+            background: var(--hover);
+        }
+
+        .nav-item.active {
+            background: var(--sidebar-active);
+            border-left: 3px solid var(--accent);
+            color: var(--accent);
+        }
+
+        .nav-item svg {
+            width: 16px;
+            height: 16px;
+            margin-right: 10px;
+            opacity: 0.7;
+        }
+
+        .nav-item.active svg {
+            opacity: 1;
+            fill: var(--accent);
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            font-size: 10px;
+            background: #333;
+            padding: 2px 6px;
+            border-radius: 10px;
+            color: #aaa;
+        }
+
+        .nav-item.active .nav-badge {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* TABLE VIEW */
+        .main-view {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-main);
+            position: relative;
+        }
+
+        .table-header {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 1.5fr;
+            background: var(--bg-toolbar);
+            border-bottom: 1px solid var(--border);
+            padding: 8px 15px;
             font-size: 12px;
-            color: #888;
-            text-align: center;
-            margin-top: 10px;
+            font-weight: 600;
+            color: var(--text-dim);
+        }
+
+        .table-content {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .table-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 1.5fr;
+            padding: 10px 15px;
+            border-bottom: 1px solid #1a1a1a;
+            font-size: 13px;
+            align-items: center;
+            transition: 0.1s;
+        }
+
+        .table-row:hover {
+            background: #151515;
+        }
+
+        .table-row.selected {
+            background: var(--accent-soft);
+        }
+
+        .status-badge {
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: #333;
+        }
+
+        .status-downloading { color: var(--accent); background: var(--accent-soft); }
+        .status-finished { color: #28a745; background: rgba(40, 167, 69, 0.1); }
+        .status-error { color: #ff4d4d; background: rgba(255, 77, 77, 0.1); }
+
+        /* EMPTY STATE */
+        .empty-state {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-dim);
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            opacity: 0.2;
+        }
+
+        /* STATUS BAR */
+        .status-bar {
+            height: 25px;
+            background: var(--bg-toolbar);
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            font-size: 11px;
+            color: var(--text-dim);
+        }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal {
+            background: var(--bg-toolbar);
+            width: 500px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            padding: 25px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+        }
+
+        .modal h3 { margin-top: 0; font-weight: 400; }
+        
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-size: 12px; color: var(--text-dim); }
+        .form-group input, .form-group select {
+            width: 100%;
+            background: #0f0f0f;
+            border: 1px solid var(--border);
+            color: white;
+            padding: 10px;
+            border-radius: 6px;
+            outline: none;
+        }
+        .form-group input:focus { border-color: var(--accent); }
+
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
+        .btn {
+            padding: 8px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .btn-primary { background: var(--accent); border: none; color: white; }
+        .btn-secondary { background: transparent; border: 1px solid var(--border); color: white; }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-main); }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #444; }
+
+        /* CONTEXT MENU */
+        #context-menu {
+            position: fixed;
+            background: #252525;
+            border: 1px solid #333;
+            border-radius: 6px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            padding: 5px 0;
+            z-index: 1000;
+            display: none;
+            min-width: 160px;
+        }
+
+        .context-item {
+            padding: 8px 15px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.1s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #eee;
+        }
+
+        .context-item:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        .context-item svg {
+            width: 14px;
+            height: 14px;
+            opacity: 0.8;
+        }
+
+        .context-divider {
+            height: 1px;
+            background: #333;
+            margin: 5px 0;
         }
     </style>
 </head>
-
 <body>
-    <div class="glass-card">
-        <h2>Extractor</h2>
-        <input type="text" id="url" placeholder="Paste link (YouTube, TikTok, etc.)">
-        <select id="resolution">
-            <option value="2160">4K (2160p)</option>
-            <option value="1080" selected>1080p</option>
-            <option value="720">720p</option>
-            <option value="480">480p</option>
-        </select>
-        <button id="download-btn">Download Media</button>
 
-        <div class="progress-container" id="p-container">
-            <div id="progress-bar"></div>
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+        <div class="tool-btn" id="add-url-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#007aff" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            <span>Add URL</span>
         </div>
-        <div id="status">Ready</div>
+        <div class="tool-btn" id="scheduler-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#ff4d4d" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            <span>Scheduler</span>
+        </div>
+        <div class="tool-btn" id="resume-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#28a745" stroke-width="2"><path d="M5 3l14 9-14 9V3z"/></svg>
+            <span>Resume</span>
+        </div>
+        <div class="tool-btn" id="stop-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#ffc107" stroke-width="2"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+            <span>Stop</span>
+        </div>
+        <div class="tool-btn" id="stop-all-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            <span>Stop All</span>
+        </div>
+        <div class="divider"></div>
+        <div class="tool-btn" id="delete-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+            <span>Delete</span>
+        </div>
+        <div class="tool-btn" id="change-folder-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+            <span>Folder</span>
+        </div>
+        <div class="tool-btn" id="options-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+            <span>Options</span>
+        </div>
+        
+        <div style="flex: 1; -webkit-app-region: no-drag; display: flex; justify-content: flex-end; padding-right: 20px;">
+            <div style="display: flex; align-items: center; background: #252525; border-radius: 20px; padding: 5px 15px; width: 250px; border: 1px solid #333;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" style="width: 16px; margin-right: 10px;"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                <input type="text" id="search-input" placeholder="Search downloads..." style="background: transparent; border: none; color: white; outline: none; font-size: 12px; width: 100%;">
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN AREA -->
+    <div class="content-area">
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">Categories</div>
+                <div class="nav-item active" data-filter="all">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                    All Downloads <span class="nav-badge" id="badge-all">0</span>
+                </div>
+                <div class="nav-item" data-filter="unfinished">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+                    Unfinished <span class="nav-badge" id="badge-unfinished">0</span>
+                </div>
+                <div class="nav-item" data-filter="finished">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                    Finished <span class="nav-badge" id="badge-finished">0</span>
+                </div>
+                <div class="nav-item" data-filter="failed">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                    Failed <span class="nav-badge" id="badge-failed">0</span>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-title">File Types</div>
+                <div class="nav-item" data-filter="compressed">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6 10h-4v-2h4v2zm0-4h-4v-2h4v2zm0-4h-4V6h4v2z"/></svg>
+                    Compressed <span class="nav-badge" id="badge-compressed">0</span>
+                </div>
+                <div class="nav-item" data-filter="documents">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                    Documents <span class="nav-badge" id="badge-documents">0</span>
+                </div>
+                <div class="nav-item" data-filter="music">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+                    Music <span class="nav-badge" id="badge-music">0</span>
+                </div>
+                <div class="nav-item" data-filter="programs">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zM4 9h16V5H4v4zm0 10v-9h16v9H4z"/></svg>
+                    Programs <span class="nav-badge" id="badge-programs">0</span>
+                </div>
+                <div class="nav-item" data-filter="video">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+                    Video <span class="nav-badge" id="badge-video">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN VIEW -->
+        <div class="main-view">
+            <div class="table-header">
+                <div class="sortable" data-sort="title">File Name</div>
+                <div class="sortable" data-sort="size">Size</div>
+                <div class="sortable" data-sort="status">Status</div>
+                <div class="sortable" data-sort="eta">Time Left</div>
+                <div class="sortable" data-sort="rate">Rate</div>
+                <div class="sortable" data-sort="res">Resolution</div>
+                <div class="sortable" data-sort="progress">Progress</div>
+            </div>
+            
+            <div class="table-content" id="download-list">
+                <!-- Rows will be injected here -->
+                <div class="empty-state" id="empty-state">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                    <span>No downloads in this category</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STATUS BAR -->
+    <div class="status-bar" id="status-bar">
+        Ready | 0 tasks
+    </div>
+
+    <!-- ADD URL MODAL -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal">
+            <h3>New Extraction Task</h3>
+            <div class="form-group">
+                <label>URL</label>
+                <input type="text" id="modal-url" placeholder="Paste media link here...">
+            </div>
+            <div class="form-group">
+                <label>Quality</label>
+                <select id="modal-res">
+                    <option value="2160">4K (2160p)</option>
+                    <option value="1080" selected>1080p</option>
+                    <option value="720">720p</option>
+                    <option value="480">480p</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="modal-cancel">Cancel</button>
+                <button class="btn btn-primary" id="modal-download">Initiate Extraction</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- OPTIONS MODAL -->
+    <div class="modal-overlay" id="options-overlay">
+        <div class="modal" style="max-width: 450px;">
+            <h3>System Configuration</h3>
+            <div class="form-group">
+                <label>Default Save Path</label>
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" id="settings-path" readonly style="flex: 1;">
+                    <button class="btn btn-secondary" id="settings-browse" style="white-space: nowrap;">Browse</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Download Speed Limit (e.g. 500K, 2M, 0 for unlimited)</label>
+                <input type="text" id="settings-speed-limit" placeholder="Unlimited">
+            </div>
+            <div class="form-group">
+                <label>System & Engine</label>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn btn-secondary" id="engine-update-btn" style="flex: 1;">Update yt-dlp Engine</button>
+                    <button class="btn btn-secondary" id="settings-clear" style="flex: 1; border-color: rgba(255, 77, 77, 0.4); color: #ff4d4d;">Clear History</button>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="options-close">Close</button>
+                <button class="btn btn-primary" id="options-save">Apply Configuration</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCHEDULER MODAL -->
+    <div class="modal-overlay" id="scheduler-overlay">
+        <div class="modal" style="max-width: 480px;">
+            <h3>Extraction Scheduler & Power</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                <div class="form-group">
+                    <label>Start Downloads At</label>
+                    <input type="time" id="sched-start-time">
+                </div>
+                <div class="form-group">
+                    <label>Stop Downloads At</label>
+                    <input type="time" id="sched-stop-time">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>When All Downloads Done</label>
+                <select id="sched-power-action">
+                    <option value="none">Take No Action</option>
+                    <option value="shutdown">Shutdown PC</option>
+                    <option value="restart">Restart PC</option>
+                    <option value="hibernate">Hibernate</option>
+                    <option value="sleep">Sleep / Suspend</option>
+                    <option value="lock">Lock Workstation</option>
+                    <option value="exit">Exit Application</option>
+                </select>
+            </div>
+
+            <div class="form-group" style="display: flex; align-items: center; gap: 10px; background: #151515; padding: 10px; border-radius: 6px;">
+                <input type="checkbox" id="sched-prevent-sleep" checked style="width: auto;">
+                <label style="margin: 0; color: #eee; font-size: 13px;">Prevent System Suspension during active extraction</label>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="scheduler-close">Cancel</button>
+                <button class="btn btn-primary" id="scheduler-save">Save Scheduler Profile</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTEXT MENU -->
+    <div id="context-menu">
+        <div class="context-item" id="ctx-open">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 2h9a2 2 0 012 2v12z"/></svg>
+            Open Folder
+        </div>
+        <div class="context-item" id="ctx-copy">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+            Copy Link
+        </div>
+        <div class="context-divider"></div>
+        <div class="context-item" id="ctx-redownload">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+            Redownload
+        </div>
+        <div class="context-divider"></div>
+        <div class="context-item" id="ctx-move-up">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg>
+            Move Up
+        </div>
+        <div class="context-item" id="ctx-move-down">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            Move Down
+        </div>
+        <div class="context-divider"></div>
+        <div class="context-item" id="ctx-delete" style="color: #ff4d4d;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+            Delete
+        </div>
     </div>
 
     <script src="renderer.js"></script>
 </body>
-
 </html>
